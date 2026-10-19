@@ -6,9 +6,11 @@ import com.example.campusflow_backend.exception.*;
 import com.example.campusflow_backend.repository.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@PreAuthorize("hasRole('ADMIN')")
 @Transactional(readOnly = true)
 public class AcademicSectionService {
     private final AcademicSectionRepository sections;
@@ -26,10 +28,12 @@ public class AcademicSectionService {
         return SectionResponse.from(sections.saveAndFlush(
                 new AcademicSection(request.name(), batch, request.capacity(), request.active())));
     }
+    @PreAuthorize("isAuthenticated()")
     public PageResponse<SectionResponse> list(Long batchId, Pageable pageable) {
         var result = batchId == null ? sections.findAll(pageable) : sections.findByBatchId(batchId, pageable);
         return PageResponse.from(result.map(SectionResponse::from));
     }
+    @PreAuthorize("isAuthenticated()")
     public SectionResponse get(Long id) { return SectionResponse.from(require(id)); }
     @Transactional
     public SectionResponse update(Long id, SectionRequest request) {

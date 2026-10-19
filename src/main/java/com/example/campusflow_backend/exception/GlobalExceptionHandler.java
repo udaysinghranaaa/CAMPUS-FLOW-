@@ -94,6 +94,18 @@ public class GlobalExceptionHandler {
         return error(HttpStatus.NOT_ACCEPTABLE, "Requested response type not supported.", request, Map.of());
     }
 
+    @ExceptionHandler(InvalidRequestException.class)
+    public ResponseEntity<ApiError> invalidInput(InvalidRequestException exception,HttpServletRequest request) {
+        return error(HttpStatus.BAD_REQUEST,exception.getMessage(),request,Map.of());
+    }
+    @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
+    public ResponseEntity<ApiError> authentication(HttpServletRequest request) {
+        return error(HttpStatus.UNAUTHORIZED,"Authentication required or invalid credentials.",request,Map.of());
+    }
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public ResponseEntity<ApiError> denied(HttpServletRequest request) {
+        return error(HttpStatus.FORBIDDEN,"Access denied.",request,Map.of());
+    }
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> unexpected(HttpServletRequest request) {
         // Do not log request bodies, credentials, or database exception details.

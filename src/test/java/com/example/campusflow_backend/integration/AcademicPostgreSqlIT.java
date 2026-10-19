@@ -17,6 +17,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.TestSecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Locale;
@@ -28,7 +30,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-class AcademicPostgreSqlIT {
+@org.springframework.security.test.context.support.WithMockUser(roles="ADMIN")
+class AcademicPostgreSqlIT extends com.example.campusflow_backend.support.SecurityIntegrationSupport {
     @Autowired private DepartmentRepository departments;
     @Autowired private AcademicBatchRepository batches;
     @Autowired private AcademicSectionRepository sections;
@@ -180,6 +183,8 @@ class AcademicPostgreSqlIT {
                 .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(1));
         mvc.perform(delete("/api/v1/batches/"+request.batchId())).andExpect(status().isConflict());
         mvc.perform(delete("/api/v1/students/"+created.id())).andExpect(status().isMethodNotAllowed());
+        // MockMvc request cleanup clears the thread context; restore this test's @WithMockUser ADMIN.
+        SecurityContextHolder.setContext(TestSecurityContextHolder.getContext());
         // No student references this section after unassignment; delete only this test's section.
         sectionService.delete(request.sectionId());
         batchService.update(request.batchId(),new BatchRequest("Updated batch",2023,2028,request.departmentId(),false));

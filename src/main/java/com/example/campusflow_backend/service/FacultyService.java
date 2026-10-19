@@ -9,9 +9,11 @@ import com.example.campusflow_backend.repository.DepartmentRepository;
 import com.example.campusflow_backend.repository.FacultyRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@PreAuthorize("hasRole('ADMIN')")
 @Transactional(readOnly = true)
 public class FacultyService {
     private final FacultyRepository faculty;

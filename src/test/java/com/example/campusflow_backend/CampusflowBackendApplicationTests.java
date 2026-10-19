@@ -6,7 +6,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @Tag("database")
 @SpringBootTest
-class CampusflowBackendApplicationTests {
+@org.springframework.security.test.context.support.WithMockUser(roles="ADMIN")
+class CampusflowBackendApplicationTests extends com.example.campusflow_backend.support.SecurityIntegrationSupport {
 
 	@Test
 	void contextLoads() {

@@ -5,6 +5,8 @@ $project = Split-Path -Parent $PSScriptRoot
 $previousDbPassword = $env:DB_PASSWORD
 $previousPgPassword = $env:PGPASSWORD
 $server = $null
+. "$PSScriptRoot/Verification-Security.ps1"
+$securityEnvironment = $null
 $departmentId = $null
 $facultyId = $null
 $baseUrl = $null
@@ -20,6 +22,7 @@ foreach ($key in @('DB_HOST','DB_PORT','DB_NAME','DB_USERNAME')) { $savedDatabas
 function Assert-Api {
     param([string]$Method, [string]$Path, [int]$Expected, $Body = $null)
     $arguments = @{ Uri = "$baseUrl$Path"; Method = $Method; UseBasicParsing = $true; TimeoutSec = 15 }
+    if ($env:CAMPUSFLOW_VERIFY_ACCESS_TOKEN) { $arguments.Headers = @{Authorization="Bearer $env:CAMPUSFLOW_VERIFY_ACCESS_TOKEN"} }
     if ($null -ne $Body) {
         $arguments.ContentType = 'application/json'
         $arguments.Body = ($Body | ConvertTo-Json -Compress)
@@ -65,6 +68,7 @@ try {
         Remove-Variable secret
     }
     & "$PSScriptRoot/Test-DatabaseConnection.ps1"
+    $securityEnvironment = Begin-VerificationSecurity
 
     if (-not $MavenPath) {
         $command = Get-Command mvn.cmd -ErrorAction SilentlyContinue
@@ -111,6 +115,7 @@ try {
     if ($health.status -cne 'UP' -or $health.application -cne 'CampusFlow' -or
         $health.message -cne 'CampusFlow Backend is Running!') { throw 'Health response mismatch.' }
 
+    Connect-VerificationAdmin -BaseUrl $baseUrl
     $token = [guid]::NewGuid().ToString('N').Substring(0,16).ToUpperInvariant()
     $departmentBody = @{name='Phase 2 Verification'; code=$token; description='Temporary verification record'}
     $department = Assert-Api POST '/api/v1/departments' 201 $departmentBody
@@ -254,6 +259,7 @@ try {
         try { $null = Assert-Api DELETE "/api/v1/departments/$departmentId" 204 }
         catch { $cleanupSucceeded = $false; Write-Warning "Could not remove temporary department ID $departmentId; clean it up locally." }
     }
+    End-VerificationSecurity -Snapshot $securityEnvironment -BaseUrl $baseUrl
     if ($server) {
         try {
             $server.Refresh()

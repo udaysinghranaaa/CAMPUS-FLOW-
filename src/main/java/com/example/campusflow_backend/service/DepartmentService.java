@@ -8,10 +8,12 @@ import com.example.campusflow_backend.repository.DepartmentRepository;
 import com.example.campusflow_backend.repository.FacultyRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Locale;
 
 @Service
+@PreAuthorize("hasRole('ADMIN')")
 @Transactional(readOnly = true)
 public class DepartmentService {
     private final DepartmentRepository departments;
@@ -31,6 +33,7 @@ public class DepartmentService {
                 new Department(request.name(), request.code(), request.description())));
     }
 
+    @PreAuthorize("isAuthenticated()")
     public PageResponse<DepartmentResponse> list(String code, Pageable pageable) {
         var result = code == null || code.isBlank()
                 ? departments.findAll(pageable)
@@ -38,6 +41,7 @@ public class DepartmentService {
         return PageResponse.from(result.map(DepartmentResponse::from));
     }
 
+    @PreAuthorize("isAuthenticated()")
     public DepartmentResponse get(Long id) {
         return DepartmentResponse.from(requireDepartment(id));
     }

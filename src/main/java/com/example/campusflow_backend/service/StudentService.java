@@ -6,9 +6,11 @@ import com.example.campusflow_backend.exception.*;
 import com.example.campusflow_backend.repository.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@PreAuthorize("hasRole('ADMIN')")
 @Transactional(readOnly = true)
 public class StudentService {
     private final StudentRepository students;

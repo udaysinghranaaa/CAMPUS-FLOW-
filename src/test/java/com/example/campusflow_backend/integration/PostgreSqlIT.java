@@ -27,7 +27,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-class PostgreSqlIT {
+@org.springframework.security.test.context.support.WithMockUser(roles="ADMIN")
+class PostgreSqlIT extends com.example.campusflow_backend.support.SecurityIntegrationSupport {
     @Autowired private DepartmentRepository departments;
     @Autowired private FacultyRepository faculty;
     @Autowired private DepartmentService departmentService;

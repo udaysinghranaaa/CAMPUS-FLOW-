@@ -6,9 +6,11 @@ import com.example.campusflow_backend.exception.*;
 import com.example.campusflow_backend.repository.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@PreAuthorize("hasRole('ADMIN')")
 @Transactional(readOnly = true)
 public class AcademicBatchService {
     private final AcademicBatchRepository batches;
@@ -28,10 +30,12 @@ public class AcademicBatchService {
         return BatchResponse.from(batches.saveAndFlush(new AcademicBatch(request.name(), request.startYear(),
                 request.endYear(), department, request.active())));
     }
+    @PreAuthorize("isAuthenticated()")
     public PageResponse<BatchResponse> list(Long departmentId, Pageable pageable) {
         var result = departmentId == null ? batches.findAll(pageable) : batches.findByDepartmentId(departmentId, pageable);
         return PageResponse.from(result.map(BatchResponse::from));
     }
+    @PreAuthorize("isAuthenticated()")
     public BatchResponse get(Long id) { return BatchResponse.from(require(id)); }
     @Transactional
     public BatchResponse update(Long id, BatchRequest request) {

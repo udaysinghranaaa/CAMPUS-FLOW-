@@ -5,6 +5,7 @@ import com.example.campusflow_backend.entity.StudentStatus;
 import com.example.campusflow_backend.exception.*;
 import com.example.campusflow_backend.service.*;
 import org.junit.jupiter.api.Test;
+import com.example.campusflow_backend.support.SecurityWebSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +20,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest({StudentController.class, AcademicBatchController.class, AcademicSectionController.class})
+@org.springframework.security.test.context.support.WithMockUser(roles="ADMIN")
+@SecurityWebSupport
 class AcademicControllerTests {
     @Autowired private MockMvc mvc;
     @MockitoBean private StudentService students;

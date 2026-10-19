@@ -4,6 +4,7 @@ import com.example.campusflow_backend.dto.*;
 import com.example.campusflow_backend.exception.*;
 import com.example.campusflow_backend.service.*;
 import org.junit.jupiter.api.Test;
+import com.example.campusflow_backend.support.SecurityWebSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -21,6 +22,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest({DepartmentController.class, FacultyController.class})
+@org.springframework.security.test.context.support.WithMockUser(roles="ADMIN")
+@SecurityWebSupport
 class BusinessControllerTests {
     @Autowired private MockMvc mvc;
     @MockitoBean private DepartmentService departments;

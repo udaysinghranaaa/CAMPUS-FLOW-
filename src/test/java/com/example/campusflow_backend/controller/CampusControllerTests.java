@@ -2,6 +2,7 @@ package com.example.campusflow_backend.controller;
 
 import com.example.campusflow_backend.service.CampusService;
 import org.junit.jupiter.api.Test;
+import com.example.campusflow_backend.support.SecurityWebSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -16,6 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(CampusController.class)
 @Import(CampusService.class)
+@SecurityWebSupport
 class CampusControllerTests {
 
     @Autowired
